@@ -55,7 +55,7 @@ def _render_tool_schema(fn: dict) -> str:
     lines: list[str] = []
     name = fn.get("name", "unnamed")
     desc = fn.get("description", "")
-    lines.append(f"  #### Function: `{name}`")
+    lines.append(f"  #### Function: {name}")
     if desc:
         lines.append(f"  {desc}")
 
@@ -78,7 +78,7 @@ def _render_routing_instruction(fn: dict) -> str:
     decision = fn.get("decision")
 
     if decision:
-        lines.append(f"  **Routing step — {label} (`{name}`):**")
+        lines.append(f"  **Routing step — {label} ({name}):**")
         if desc:
             lines.append(f"  {desc}")
 
@@ -90,7 +90,7 @@ def _render_routing_instruction(fn: dict) -> str:
 
         action = decision.get("action", "")
         if action:
-            lines.append(f"  Decision action: `{action}`")
+            lines.append(f"  Decision action: {action}")
 
         conditions = decision.get("conditions", [])
         default_target = decision.get("default_next_node_id", "")
@@ -101,13 +101,13 @@ def _render_routing_instruction(fn: dict) -> str:
                 op = cond.get("operator", "==")
                 target = cond.get("next_node_id", "")
                 target_label = target.replace("_", " ").replace("-", " ").title()
-                lines.append(f"    - If {op} \"{val}\" → proceed to **{target_label}** (`{target}`)")
+                lines.append(f"    - If {op} \"{val}\" → proceed to **{target_label}** ({target})")
             if default_target:
                 default_label = default_target.replace("_", " ").replace("-", " ").title()
-                lines.append(f"    - Otherwise → proceed to **{default_label}** (`{default_target}`)")
+                lines.append(f"    - Otherwise → proceed to **{default_label}** ({default_target})")
     elif next_node:
         target_label = next_node.replace("_", " ").replace("-", " ").title()
-        lines.append(f"  **When {label} (`{name}`):** {desc if desc else 'proceed to next stage'}")
+        lines.append(f"  **When {label} ({name}):** {desc if desc else 'proceed to next stage'}")
 
         required = fn.get("required", [])
         if required:
@@ -115,7 +115,7 @@ def _render_routing_instruction(fn: dict) -> str:
 
         _render_properties_block(fn.get("properties", {}), lines)
 
-        lines.append(f"    → Proceed to **{target_label}** (`{next_node}`)")
+        lines.append(f"    → Proceed to **{target_label}** ({next_node})")
 
     return "\n".join(lines)
 
@@ -133,13 +133,15 @@ def _render_properties_block(properties: dict, lines: list[str]) -> None:
         fmt = prop_def.get("format", "")
         default = prop_def.get("default")
         items = prop_def.get("items")
-        parts = [f"    - **{prop_name}**"]
+        # Unescape any JSON-escaped bold markers from property names (e.g. \"\\*\\*name\\*\\*\" → \"name\")
+        clean_name = prop_name.replace("\\\\*\\\\*", "*").replace("\\*\\*", "*")
+        parts = [f"    - {clean_name}"]
         if prop_type:
             parts.append(f" (type: {prop_type})")
         if enum_vals:
             parts.append(f" (enum: {', '.join(str(v) for v in enum_vals)})")
         if pattern:
-            parts.append(f" (pattern: `{pattern}`)")
+            parts.append(f" (pattern: {pattern})")
         if fmt:
             parts.append(f" (format: {fmt})")
         if default is not None:
@@ -260,7 +262,7 @@ def _convert_array_format(flow_config: dict) -> str:
         elif node_type == "end":
             type_tag = " [END]"
 
-        header = f"### Stage {stage_num} — {node_label or nid} (id: `{nid}`, type: `{node_type or 'node'}`){type_tag}"
+        header = f"### Stage {stage_num} — {node_label or nid} (id: {nid}, type: {node_type or 'node'}){type_tag}"
         sections.append(header)
 
         description = node.get("description", "") or data.get("description", "")
@@ -369,7 +371,7 @@ def _convert_dict_format(flow_config: dict) -> str:
             sections.append("")
 
     if initial_node:
-        sections.append(f"**Initial node:** `{initial_node}`")
+        sections.append(f"**Initial node:** {initial_node}")
         sections.append("")
 
     if role_text:
@@ -419,7 +421,7 @@ def _convert_dict_format(flow_config: dict) -> str:
         elif is_terminal or node_type == "end":
             type_tag = " [END]"
 
-        header = f"### Stage {stage_num} — {node_label} (id: `{node_key}`, type: `{node_type}`){type_tag}"
+        header = f"### Stage {stage_num} — {node_label} (id: {node_key}, type: {node_type}){type_tag}"
         sections.append(header)
 
         description = data.get("description", "")
