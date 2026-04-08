@@ -78,7 +78,7 @@ def _render_routing_instruction(fn: dict) -> str:
     decision = fn.get("decision")
 
     if decision:
-        lines.append(f"  **Routing step — {label} ({name}):**")
+        lines.append(f"  Routing step — {label} ({name}):")
         if desc:
             lines.append(f"  {desc}")
 
@@ -101,13 +101,13 @@ def _render_routing_instruction(fn: dict) -> str:
                 op = cond.get("operator", "==")
                 target = cond.get("next_node_id", "")
                 target_label = target.replace("_", " ").replace("-", " ").title()
-                lines.append(f"    - If {op} \"{val}\" → proceed to **{target_label}** ({target})")
+                lines.append(f"    - If {op} \"{val}\" → proceed to {target_label} ({target})")
             if default_target:
                 default_label = default_target.replace("_", " ").replace("-", " ").title()
-                lines.append(f"    - Otherwise → proceed to **{default_label}** ({default_target})")
+                lines.append(f"    - Otherwise → proceed to {default_label} ({default_target})")
     elif next_node:
         target_label = next_node.replace("_", " ").replace("-", " ").title()
-        lines.append(f"  **When {label} ({name}):** {desc if desc else 'proceed to next stage'}")
+        lines.append(f"  When {label} ({name}): {desc if desc else 'proceed to next stage'}")
 
         required = fn.get("required", [])
         if required:
@@ -115,7 +115,7 @@ def _render_routing_instruction(fn: dict) -> str:
 
         _render_properties_block(fn.get("properties", {}), lines)
 
-        lines.append(f"    → Proceed to **{target_label}** ({next_node})")
+        lines.append(f"    → Proceed to {target_label} ({next_node})")
 
     return "\n".join(lines)
 
@@ -267,7 +267,7 @@ def _convert_array_format(flow_config: dict) -> str:
 
         description = node.get("description", "") or data.get("description", "")
         if description:
-            sections.append(f"**Description:** {description}")
+            sections.append(f"Description: {description}")
 
         for rm in data.get("role_messages", []):
             content = rm.get("content", "").strip()
@@ -297,11 +297,11 @@ def _convert_array_format(flow_config: dict) -> str:
             simple_fns = [fn for fn in functions if not isinstance(fn, dict)]
 
             if routing_fns:
-                sections.append("- **Conversation routing:**")
+                sections.append("- Conversation routing:")
                 for fn in routing_fns:
                     sections.append(_render_routing_instruction(fn))
             if tool_fns or simple_fns:
-                sections.append("- **Functions:**")
+                sections.append("- Functions:")
                 for fn in tool_fns:
                     sections.append(_render_tool_schema(fn))
                 for fn in simple_fns:
@@ -371,7 +371,7 @@ def _convert_dict_format(flow_config: dict) -> str:
             sections.append("")
 
     if initial_node:
-        sections.append(f"**Initial node:** {initial_node}")
+        sections.append(f"Initial node: {initial_node}")
         sections.append("")
 
     if role_text:
@@ -426,7 +426,7 @@ def _convert_dict_format(flow_config: dict) -> str:
 
         description = data.get("description", "")
         if description:
-            sections.append(f"**Description:** {description}")
+            sections.append(f"Description: {description}")
 
         for rm in data.get("role_messages", []):
             if isinstance(rm, dict):
@@ -457,11 +457,11 @@ def _convert_dict_format(flow_config: dict) -> str:
             simple_fns = [fn for fn in functions if not isinstance(fn, dict)]
 
             if routing_fns:
-                sections.append("- **Conversation routing:**")
+                sections.append("- Conversation routing:")
                 for fn in routing_fns:
                     sections.append(_render_routing_instruction(fn))
             if tool_fns or simple_fns:
-                sections.append("- **Functions:**")
+                sections.append("- Functions:")
                 for fn in tool_fns:
                     sections.append(_render_tool_schema(fn))
                 for fn in simple_fns:
