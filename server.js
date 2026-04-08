@@ -58,8 +58,15 @@ const GITHUB_API_BASE = 'https://api.github.com/repos/mattvalenta/voice_agent_pr
 
 const FLOWS = {
   'internet_agent_v6.json': 'internet_agent_v6.json',
+  'internet_agent_v7.json': 'internet_agent_v7.json',
+  'internet_agent_v7_compact.json': 'internet_agent_v7_compact.json',
+  'internet_agent_experimental.json': 'internet_agent_experimental.json',
+  'internet_agent_experimental_minimal.json': 'internet_agent_experimental_minimal.json',
   'equity_agent_v5.json': 'equity_agent_v5.json',
   'inbound_agent_rebuilt_v4.json': 'inbound_agent_rebuilt_v4.json',
+  'product_demo_v5.json': 'product_demo_v5.json',
+  'product_demo_v10.json': 'product_demo_v10.json',
+  'product_demo_v11.json': 'product_demo_v11.json',
 };
 
 const PROMPTS = {
