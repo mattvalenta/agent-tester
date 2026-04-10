@@ -67,6 +67,7 @@ const FLOWS = {
   'product_demo_v5.json': 'product_demo_v5.json',
   'product_demo_v10.json': 'product_demo_v10.json',
   'product_demo_v11.json': 'product_demo_v11.json',
+  'product_demo_v12.json': 'product_demo_v12.json',
 };
 
 const PROMPTS = {
