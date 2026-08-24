@@ -14,6 +14,21 @@ const PREVIOUS_DEFAULT_MODEL = 'openai/gpt-oss-120b';
 
 const serverSource = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
 const envExample = fs.readFileSync(path.join(__dirname, '.env.example'), 'utf8');
+const indexHtml = fs.readFileSync(
+  path.join(__dirname, 'public', 'index.html'),
+  'utf8'
+);
+
+// The options inside `<select id="model-select">`, in document order.
+function modelOptions() {
+  const select = indexHtml.match(
+    /<select\s+id="model-select"\s*>([\s\S]*?)<\/select>/
+  );
+  assert.ok(select, 'expected a #model-select element in public/index.html');
+  return [...select[1].matchAll(/<option\s+value="([^"]*)"([^>]*)>/g)].map(
+    ([, value, attrs]) => ({ value, selected: /\bselected\b/.test(attrs) })
+  );
+}
 
 // `const MODEL = process.env.OPENROUTER_MODEL || '<default>';`
 const modelAssignment =
@@ -42,6 +57,46 @@ test('.env.example documents OPENROUTER_MODEL with the new default', () => {
     .find((l) => l.startsWith('OPENROUTER_MODEL='));
   assert.ok(line, 'expected an OPENROUTER_MODEL entry in .env.example');
   assert.equal(line.trim(), `OPENROUTER_MODEL=${DEFAULT_MODEL}`);
+});
+
+test('the browser model picker defaults to the new model', () => {
+  const selected = modelOptions().filter((o) => o.selected);
+  assert.equal(selected.length, 1, 'expected exactly one selected model option');
+  assert.equal(selected[0].value, DEFAULT_MODEL);
+});
+
+test('server, .env.example, and the browser picker agree on the default', () => {
+  const [, , serverDefault] = serverSource.match(modelAssignment);
+  const envDefault = envExample
+    .split('\n')
+    .find((l) => l.startsWith('OPENROUTER_MODEL='))
+    .trim()
+    .slice('OPENROUTER_MODEL='.length);
+  const browserDefault = modelOptions().find((o) => o.selected).value;
+  assert.equal(serverDefault, envDefault);
+  assert.equal(browserDefault, envDefault);
+});
+
+test('the browser model picker drops the retired option', () => {
+  const values = modelOptions().map((o) => o.value);
+  // Exact match only: the `:free` variant of the same model is not retired.
+  assert.ok(
+    !values.includes(PREVIOUS_DEFAULT_MODEL),
+    `#model-select should not offer ${PREVIOUS_DEFAULT_MODEL}`
+  );
+});
+
+test('the browser model picker keeps the other choices', () => {
+  const values = modelOptions().map((o) => o.value);
+  for (const kept of [
+    'openai/gpt-oss-20b:free',
+    'openai/gpt-oss-120b:free',
+    'google/gemini-3.1-flash-lite-preview',
+    'x-ai/grok-4.1-fast',
+    '__custom__',
+  ]) {
+    assert.ok(values.includes(kept), `#model-select should still offer ${kept}`);
+  }
 });
 
 test('.env.example names the other env vars without carrying a key value', () => {
