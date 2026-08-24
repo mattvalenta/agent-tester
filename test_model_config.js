@@ -9,8 +9,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DEFAULT_MODEL = 'inclusionai/ling-3.0-flash';
-const PREVIOUS_DEFAULT_MODEL = 'openai/gpt-oss-120b';
+const DEFAULT_MODEL = '@preset/dumb-llm-openrouter';
+const PREVIOUS_DEFAULT_MODEL = 'inclusionai/ling-3.0-flash';
 
 const serverSource = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
 const envExample = fs.readFileSync(path.join(__dirname, '.env.example'), 'utf8');
@@ -77,9 +77,27 @@ test('server, .env.example, and the browser picker agree on the default', () => 
   assert.equal(browserDefault, envDefault);
 });
 
+test('the default is a managed OpenRouter preset id', () => {
+  assert.match(DEFAULT_MODEL, /^@preset\//);
+});
+
+test('the browser labels the default option as a managed preset', () => {
+  const option = indexHtml.match(
+    /<option\s+value="@preset\/dumb-llm-openrouter"[^>]*>([^<]*)</
+  );
+  assert.ok(option, 'expected the preset option in #model-select');
+  assert.match(option[1], /preset/i);
+});
+
+test('the per-session model still overrides the default', () => {
+  // POST /api/session stores the caller's choice; POST /api/chat replays it.
+  assert.match(serverSource, /const\s+useModel\s*=\s*model\s*\|\|\s*MODEL\s*;/);
+  assert.match(serverSource, /model:\s*session\.model\s*\|\|\s*MODEL\s*,/);
+});
+
 test('the browser model picker drops the retired option', () => {
   const values = modelOptions().map((o) => o.value);
-  // Exact match only: the `:free` variant of the same model is not retired.
+  // Exact match only: a `:free` or otherwise suffixed variant is not retired.
   assert.ok(
     !values.includes(PREVIOUS_DEFAULT_MODEL),
     `#model-select should not offer ${PREVIOUS_DEFAULT_MODEL}`

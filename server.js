@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-const MODEL = process.env.OPENROUTER_MODEL || 'inclusionai/ling-3.0-flash';
+const MODEL = process.env.OPENROUTER_MODEL || '@preset/dumb-llm-openrouter';
 const API_KEY = process.env.OPENROUTER_API_KEY;
 const PORT = process.env.PORT || 3100;
 

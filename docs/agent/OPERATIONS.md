@@ -25,7 +25,7 @@ npm start          # listens on PORT, default 3100
 | Variable | Required | Effect |
 | --- | --- | --- |
 | `OPENROUTER_API_KEY` | Yes | Bearer credential for chat completions |
-| `OPENROUTER_MODEL` | No | Default model; falls back to `openai/gpt-oss-120b` |
+| `OPENROUTER_MODEL` | No | Default model; falls back to the managed preset `@preset/dumb-llm-openrouter` |
 | `PORT` | No | Listen port; falls back to `3100` |
 
 Record names only. Never paste values into commits, issues, logs, or docs.
